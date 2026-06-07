@@ -11,7 +11,7 @@ export default function Chat() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-
+const [unreadCounts, setUnreadCounts] = useState({});
   useEffect(() => {
     const user = localStorage.getItem("user");
 
@@ -62,8 +62,9 @@ export default function Chat() {
 
   useEffect(() => {
     socketRef.current = io(process.env.NEXT_PUBLIC_API_URL);
+socketRef.current.on("receiveMessage", (data) => {
 
-   socketRef.current.on("receiveMessage", (data) => {
+  // Show message in open chat
   if (
     data.senderId === selectedUser?._id ||
     data.receiverId === selectedUser?._id
@@ -71,6 +72,18 @@ export default function Chat() {
     setMessages((prev) => [...prev, data]);
   }
 
+  // Increase unread count
+  if (
+    data.senderId !== currentUser?._id &&
+    data.senderId !== selectedUser?._id
+  ) {
+    setUnreadCounts((prev) => ({
+      ...prev,
+      [data.senderId]: (prev[data.senderId] || 0) + 1,
+    }));
+  }
+
+  // Browser notification
   if (
     data.senderId !== currentUser?._id &&
     Notification.permission === "granted"
@@ -176,7 +189,14 @@ export default function Chat() {
           {filteredUsers.map((user) => (
             <div
               key={user._id}
-              onClick={() => setSelectedUser(user)}
+             onClick={() => {
+  setSelectedUser(user);
+
+  setUnreadCounts((prev) => ({
+    ...prev,
+    [user._id]: 0,
+  }));
+}}
               className={`flex items-center gap-3 p-4 cursor-pointer transition border-b
                 ${
                   selectedUser?._id === user._id
@@ -189,9 +209,17 @@ export default function Chat() {
               </div>
 
               <div className="min-w-0">
-                <h3 className="font-semibold text-black truncate">
-                  {user.name}
-                </h3>
+              <div className="flex items-center gap-2">
+  <h3 className="font-semibold text-black truncate">
+    {user.name}
+  </h3>
+
+  {unreadCounts[user._id] > 0 && (
+    <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+      {unreadCounts[user._id]}
+    </span>
+  )}
+</div>
 
                 <p className="text-sm text-gray-500 truncate">
                   {user.email}
