@@ -39,7 +39,7 @@ export default function Chat() {
   const getUsers = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/users"
+       `${process.env.NEXT_PUBLIC_API_URL}/api/users`
       );
 
       const filtered = res.data.filter(
@@ -53,7 +53,7 @@ export default function Chat() {
   };
 const socketRef = useRef(null);
 useEffect(() => {
-  socketRef.current = io("http://localhost:5000");
+  socketRef.current = io(process.env.NEXT_PUBLIC_API_URL);
 
   socketRef.current.on("receiveMessage", (data) => {
 
@@ -72,7 +72,7 @@ useEffect(() => {
   const loadMessages = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/messages/${currentUser._id}/${selectedUser._id}`
+       `${process.env.NEXT_PUBLIC_API_URL}/api/messages/${currentUser._id}/${selectedUser._id}`
       );
 
       setMessages(res.data);
@@ -92,7 +92,7 @@ useEffect(() => {
 
     try {
      const res = await axios.post(
-  "http://localhost:5000/api/messages",
+ `${process.env.NEXT_PUBLIC_API_URL}/api/messages`,
   payload
 );
 
