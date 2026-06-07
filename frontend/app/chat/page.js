@@ -208,23 +208,23 @@ socketRef.current.on("receiveMessage", (data) => {
                 {user.name?.charAt(0)}
               </div>
 
-              <div className="min-w-0">
-              <div className="flex items-center gap-2">
-  <h3 className="font-semibold text-black truncate">
-    {user.name}
-  </h3>
+         <div className="flex justify-between items-center w-full">
+  <div className="min-w-0">
+    <h3 className="font-semibold text-black truncate">
+      {user.name}
+    </h3>
+
+    <p className="text-sm text-gray-500 truncate">
+      {user.email}
+    </p>
+  </div>
 
   {unreadCounts[user._id] > 0 && (
-    <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+    <div className="ml-2 bg-green-500 text-white text-xs font-bold min-w-[24px] h-6 px-2 rounded-full flex items-center justify-center">
       {unreadCounts[user._id]}
-    </span>
+    </div>
   )}
 </div>
-
-                <p className="text-sm text-gray-500 truncate">
-                  {user.email}
-                </p>
-              </div>
             </div>
           ))}
         </div>
