@@ -25,6 +25,12 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
+  if ("Notification" in window) {
+    Notification.requestPermission();
+  }
+}, []);
+
+  useEffect(() => {
     if (currentUser) {
       getUsers();
     }
@@ -57,19 +63,32 @@ export default function Chat() {
   useEffect(() => {
     socketRef.current = io(process.env.NEXT_PUBLIC_API_URL);
 
-    socketRef.current.on("receiveMessage", (data) => {
-      if (
-        data.senderId === selectedUser?._id ||
-        data.receiverId === selectedUser?._id
-      ) {
-        setMessages((prev) => [...prev, data]);
-      }
+   socketRef.current.on("receiveMessage", (data) => {
+  if (
+    data.senderId === selectedUser?._id ||
+    data.receiverId === selectedUser?._id
+  ) {
+    setMessages((prev) => [...prev, data]);
+  }
+
+  if (
+    data.senderId !== currentUser?._id &&
+    Notification.permission === "granted"
+  ) {
+    const sender = users.find(
+      (u) => u._id === data.senderId
+    );
+
+    new Notification(sender?.name || "New Message", {
+      body: data.text,
     });
+  }
+});
 
     return () => {
       socketRef.current.disconnect();
     };
-  }, [selectedUser]);
+  }, [selectedUser, currentUser, users]);
 
   const loadMessages = async () => {
     try {
